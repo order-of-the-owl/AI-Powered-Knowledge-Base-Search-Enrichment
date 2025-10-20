@@ -117,7 +117,7 @@ async def upload_document(file: UploadFile = File(...)):
                 detail=f"Unsupported file type: {file_ext}. Allowed: {', '.join(allowed_extensions)}"
             )
         
-        print(f"\n📤 Receiving file: {file.filename}")
+        print(f"\n Receiving file: {file.filename}")
         
         # Read file content
         file_content = await file.read()
@@ -181,7 +181,7 @@ async def search(query: SearchQuery):
         if not query.query or len(query.query.strip()) == 0:
             raise HTTPException(status_code=400, detail="Query cannot be empty")
         
-        print(f"\n🔍 Search request: {query.query}")
+        print(f"\n Search request: {query.query}")
         
         # Check if knowledge base is empty
         doc_count = vector_store.get_collection_count()
@@ -209,11 +209,11 @@ async def search(query: SearchQuery):
         
         # Auto-enrichment if enabled
         if query.include_auto_enrichment and response.missing_info:
-            print("🔄 Attempting auto-enrichment...")
+            print("Attempting auto-enrichment...")
             enrichment_results = simple_auto_enrichment(response.missing_info)
             if enrichment_results:
                 response.auto_enrichment = enrichment_results[0]  # Use first result
-                print(f"✅ Auto-enrichment: {enrichment_results[0].success}")
+                print(f"Auto-enrichment: {enrichment_results[0].success}")
         
         return response
     
@@ -263,7 +263,7 @@ async def list_documents():
 async def reset_knowledge_base():
     """
     Delete all documents from the knowledge base
-    ⚠️ WARNING: This cannot be undone!
+    WARNING: This cannot be undone!
     """
     try:
         vector_store.delete_collection()

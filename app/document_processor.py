@@ -16,25 +16,22 @@ class DocumentProcessor:
     
     def __init__(self):
         """Initialize the document processor with text splitter"""
-        # Configure the text splitter
-        # This breaks documents into manageable chunks with overlap
+    
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,        # Characters per chunk
-            chunk_overlap=100,      # Overlap between chunks (prevents losing context at boundaries)
-            length_function=len,    # How to measure chunk size
-            separators=[           # Try to split on these, in order of preference
-                "\n\n",            # Paragraphs (best)
-                "\n",              # Lines
-                ".",               # Sentences
-                " ",               # Words
-                ""                 # Characters (last resort)
+            chunk_size=500,       
+            chunk_overlap=100,     
+            length_function=len,    
+            separators=[         
+                "\n\n",            
+                "\n",             
+                ".",             
+                " ",               
+                ""                 
             ]
         )
         
-        # Get upload directory from environment
         self.upload_dir = os.getenv("UPLOAD_DIR", "./uploads")
         
-        # Create upload directory if it doesn't exist
         os.makedirs(self.upload_dir, exist_ok=True)
     
     def extract_text_from_pdf(self, file_path: str) -> str:
@@ -51,7 +48,7 @@ class DocumentProcessor:
             reader = PdfReader(file_path)
             text = ""
             
-            # Extract text from each page
+
             for page_num, page in enumerate(reader.pages, start=1):
                 page_text = page.extract_text()
                 if page_text:
@@ -61,7 +58,7 @@ class DocumentProcessor:
             return text
             
         except Exception as e:
-            print(f"❌ Error extracting text from PDF: {e}")
+            print(f" Error extracting text from PDF: {e}")
             raise
     
     def extract_text_from_docx(self, file_path: str) -> str:
@@ -83,11 +80,11 @@ class DocumentProcessor:
                 if paragraph.text.strip():  # Skip empty paragraphs
                     text += paragraph.text + "\n"
             
-            print(f"✅ Extracted {len(text)} characters from DOCX ({len(doc.paragraphs)} paragraphs)")
+            print(f"Extracted {len(text)} characters from DOCX ({len(doc.paragraphs)} paragraphs)")
             return text
             
         except Exception as e:
-            print(f"❌ Error extracting text from DOCX: {e}")
+            print(f"Error extracting text from DOCX: {e}")
             raise
     
     def extract_text_from_txt(self, file_path: str) -> str:
@@ -104,11 +101,11 @@ class DocumentProcessor:
             with open(file_path, 'r', encoding='utf-8') as f:
                 text = f.read()
             
-            print(f"✅ Extracted {len(text)} characters from TXT")
+            print(f"Extracted {len(text)} characters from TXT")
             return text
             
         except Exception as e:
-            print(f"❌ Error reading TXT file: {e}")
+            print(f"Error reading TXT file: {e}")
             raise
     
     def extract_text(self, file_path: str, filename: str) -> str:
@@ -176,18 +173,16 @@ class DocumentProcessor:
         start_time = time.time()
         
         try:
-            # Step 1: Extract text from file
-            print(f"📄 Processing document: {filename}")
+           
+            print(f"Processing document: {filename}")
             text = self.extract_text(file_path, filename)
-            
-            # Check if text was extracted
+
+
             if not text or len(text.strip()) < 10:
                 raise ValueError("No meaningful text extracted from document")
             
-            # Step 2: Chunk the text
             chunks, metadatas = self.chunk_text(text, filename)
-            
-            # Step 3: Return results
+        
             processing_time = time.time() - start_time
             return {
                 "filename": filename,
@@ -200,7 +195,7 @@ class DocumentProcessor:
             }
             
         except Exception as e:
-            print(f"❌ Error processing document {filename}: {e}")
+            print(f"Error processing document {filename}: {e}")
             return {
                 "filename": filename,
                 "status": "error",
@@ -219,15 +214,13 @@ class DocumentProcessor:
         Returns:
             Path to saved file
         """
-        # Create safe filename (remove path traversal attempts)
         safe_filename = os.path.basename(filename)
         file_path = os.path.join(self.upload_dir, safe_filename)
-        
-        # Write file to disk
+
         with open(file_path, 'wb') as f:
             f.write(file_content)
         
-        print(f"💾 Saved file to: {file_path}")
+        print(f"Saved file to: {file_path}")
         return file_path
     
     def cleanup_file(self, file_path: str):
@@ -240,9 +233,9 @@ class DocumentProcessor:
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
-                print(f"🗑️  Cleaned up: {file_path}")
+                print(f"Cleaned up: {file_path}")
         except Exception as e:
-            print(f"⚠️  Could not delete {file_path}: {e}")
+            print(f"Could not delete {file_path}: {e}")
 
 
 # Singleton instance

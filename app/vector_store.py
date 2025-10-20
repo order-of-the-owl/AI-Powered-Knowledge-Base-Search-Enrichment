@@ -8,7 +8,7 @@ from light_embed import TextEmbedding
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
-# Load environment variables
+
 load_dotenv()
 
 
@@ -28,32 +28,30 @@ class VectorStore:
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
      
-        # Initialize ChromaDB client with persistent storage
         self.client = chromadb.PersistentClient(
             path=self.chroma_db_path,
             settings=Settings(
-                anonymized_telemetry=False,  # Disable usage tracking
+                anonymized_telemetry=False,  
                 allow_reset=True  # Allow database reset for development
             )
         )
         
-        # Initialize the vector store (will connect to existing or create new)
         self.vector_store = None
         self._initialize_vector_store()
     
     def _initialize_vector_store(self):
         """Initialize or connect to existing Chroma vector store"""
         try:
-            # Try to connect to existing collection
+           
             self.vector_store = Chroma(
                 client=self.client,
                 collection_name="knowledge_base",
                 embedding_function=self.embeddings
             )
-            print(f"✅ Connected to existing vector store at {self.chroma_db_path}")
+            print(f"Connected to existing vector store at {self.chroma_db_path}")
         except Exception as e:
-            print(f"⚠️  Creating new vector store: {e}")
-            # Create new collection if it doesn't exist
+            print(f"Creating new vector store: {e}")
+
             self.vector_store = Chroma(
                 client=self.client,
                 collection_name="knowledge_base",
@@ -72,16 +70,15 @@ class VectorStore:
             Number of documents added
         """
         try:
-            # Add texts with their metadata to the vector store
-            # LangChain automatically generates embeddings and stores them
+        
             self.vector_store.add_texts(
                 texts=texts,
                 metadatas=metadatas
             )
-            print(f"✅ Added {len(texts)} chunks to vector store")
+            print(f"Added {len(texts)} chunks to vector store")
             return len(texts)
         except Exception as e:
-            print(f"❌ Error adding documents: {e}")
+            print(f"Error adding documents: {e}")
             raise
     
     def similarity_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
@@ -111,11 +108,11 @@ class VectorStore:
                     "metadata": doc.metadata
                 })
             
-            print(f"✅ Found {len(formatted_results)} relevant chunks")
+            print(f"Found {len(formatted_results)} relevant chunks")
             return formatted_results
             
         except Exception as e:
-            print(f"❌ Error during search: {e}")
+            print(f"Error during search: {e}")
             return []
     
     def similarity_search_with_score(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
@@ -148,7 +145,7 @@ class VectorStore:
             return formatted_results
             
         except Exception as e:
-            print(f"❌ Error during search with score: {e}")
+            print(f"Error during search with score: {e}")
             return []
     
     def get_collection_count(self) -> int:
@@ -157,18 +154,18 @@ class VectorStore:
             collection = self.client.get_collection("knowledge_base")
             return collection.count()
         except Exception as e:
-            print(f"❌ Error getting collection count: {e}")
+            print(f"Error getting collection count: {e}")
             return 0
     
     def delete_collection(self):
         """Delete the entire collection (useful for testing/reset)"""
         try:
             self.client.delete_collection("knowledge_base")
-            print("✅ Collection deleted successfully")
+            print("Collection deleted successfully")
             # Reinitialize
             self._initialize_vector_store()
         except Exception as e:
-            print(f"❌ Error deleting collection: {e}")
+            print(f"Error deleting collection: {e}")
     
     def get_all_documents(self) -> List[Dict[str, Any]]:
         """
@@ -189,11 +186,10 @@ class VectorStore:
             
             return documents
         except Exception as e:
-            print(f"❌ Error retrieving all documents: {e}")
+            print(f"Error retrieving all documents: {e}")
             return []
 
 
-# Singleton instance (one vector store for the entire app)
 _vector_store_instance = None
 
 def get_vector_store() -> VectorStore:
