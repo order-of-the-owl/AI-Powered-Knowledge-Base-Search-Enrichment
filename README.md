@@ -103,6 +103,7 @@ Notes:
 
 The service exposes the following main endpoints. Example uses are provided with `curl` for a backend-only workflow.
 
+- FOR ALL endpoints : 8000/docs#/
 - GET `/` — simple health check (returns status and message)
 - GET `/health` — detailed health check (includes number of document chunks)
 - POST `/upload` — upload a document (multipart/form-data: `file` field)
